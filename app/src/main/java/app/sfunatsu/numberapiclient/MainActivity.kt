@@ -2,6 +2,7 @@ package app.sfunatsu.numberapiclient
 
 import android.os.Bundle
 import android.widget.TextView
+import androidx.lifecycle.ViewModel
 import app.sfunatsu.numberapiclient.databinding.ActivityMainBinding
 import app.sfunatsu.numberapiclient.repository.GetNumTriviaResult
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
@@ -38,11 +39,14 @@ class MainActivity : ScopedAppActivity() {
     }
 }
 
-fun TextView.toLong() = try {
-    text.toString().toLong()
-} catch (e: NumberFormatException) {
+fun TextView.toLong(): Long? = runCatchingOrNull { text.toString().toLong() }
+
+fun <T> runCatchingOrNull(f: () -> T): T? = try {
+    f()
+} catch (e: Exception) {
     null
 }
+
 
 
 

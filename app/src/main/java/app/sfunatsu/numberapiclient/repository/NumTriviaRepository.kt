@@ -10,12 +10,12 @@ import retrofit2.http.Path
 class NumTriviaRepository(
     private val remoteDataSource: NumTriviaRemoteDataSource = NumTriviaRemoteDataSource()
 ) {
-    suspend fun findNumOfTrivia(num: Long) = GetNumTriviaResult.runCatching {
-        remoteDataSource.triviaOf(num)
+    suspend fun findNumOfTrivia(num: Long): GetNumTriviaResult<Exception> = GetNumTriviaResult.runCatching {
+        return@runCatching remoteDataSource.triviaOf(num)
     }
 
-    fun findNumOfTriviaLiveData(num: Long) = liveData<NumTrivia> {
-        findNumOfTrivia(num)
+    fun findNumOfTriviaLiveData(num: Long) = liveData {
+        this.emit(findNumOfTrivia(num))
     }
 }
 

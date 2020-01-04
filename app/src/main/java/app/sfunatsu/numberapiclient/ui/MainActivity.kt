@@ -24,27 +24,32 @@ class MainActivity : ScopedAppActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        subscribeUi()
+    }
 
+    private fun subscribeUi() {
         // observe click button and bind result to output
-        val outputObs = Observer<String> {
-            binding.outputTextView.text = it
+        val buttonClickLister = {
+            viewModel.onClick().observe(this, Observer<String> {
+                binding.outputTextView.text = it
+            })
         }
-        val buttonClickLister: View.OnClickListener = View.OnClickListener {
-            viewModel.onClick().observe(this, outputObs)
-        }
-        binding.fetchButton.setOnClickListener (buttonClickLister)
+        binding.fetchButton.clicks(buttonClickLister)
 
         // observe input
-        val inputTextWatcher = binding.inputEditText.addTextChangedListener{
+        val inputTextWatcher = binding.inputEditText.addTextChangedListener {
             viewModel.onInputTextChanged(it!!)
         }
 
         // observe clear
-        val clearInputObs = Observer<Unit> {
+        viewModel.clearInputText.observe(this, Observer<Unit> {
             binding.inputEditText.clearWithoutNotify(inputTextWatcher)
-        }
-        viewModel.clearInputText.observe(this, clearInputObs)
+        })
     }
+}
+
+fun View.clicks(f: () -> Unit) {
+    setOnClickListener { f() }
 }
 
 fun EditText.clearWithoutNotify(textWatcher: TextWatcher) {

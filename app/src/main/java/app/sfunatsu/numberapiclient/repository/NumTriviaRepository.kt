@@ -1,6 +1,5 @@
 package app.sfunatsu.numberapiclient.repository
 
-import androidx.lifecycle.liveData
 import app.sfunatsu.numberapiclient.model.NumTrivia
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -12,10 +11,6 @@ class NumTriviaRepository(
 ) {
     suspend fun findNumOfTrivia(num: Long) = GetNumTriviaResult.runCatching {
         remoteDataSource.triviaOf(num)
-    }
-
-    fun findNumOfTriviaLiveData(num: Long) = liveData<NumTrivia> {
-        findNumOfTrivia(num)
     }
 }
 

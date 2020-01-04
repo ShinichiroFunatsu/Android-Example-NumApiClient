@@ -11,6 +11,7 @@ interface NumTriviaViewModel {
     companion object {
         fun create(repository: NumTriviaRepository) = NumTriviaViewModelImpl(repository)
     }
+
     val input: LiveData<String>
     val clearInputText: LiveData<Unit>
     fun onClick(): LiveData<String>
@@ -29,11 +30,15 @@ class NumTriviaViewModelImpl(
         val num = input.value?.toLongOrNull()
             ?: return@liveData
         emit("loading...")
-        clearInputText.value = Unit
         val msg = repository.findNumOfTrivia(num = num).let { res ->
             when (res) {
-                is GetNumTriviaResult.Success -> res.trivia.text
-                is GetNumTriviaResult.Error<Exception> -> res.e.message ?: "error"
+                is GetNumTriviaResult.Success -> {
+                    clearInputText.value = Unit
+                    res.trivia.text
+                }
+                is GetNumTriviaResult.Error<Exception> -> {
+                    res.e.message ?: "error"
+                }
             }
         }
         emit(msg)

@@ -1,4 +1,4 @@
-package app.sfunatsu.numberapiclient
+package app.sfunatsu.numberapiclient.ui
 
 import android.os.Bundle
 import android.widget.TextView

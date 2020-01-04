@@ -8,6 +8,9 @@ import app.sfunatsu.numberapiclient.repository.GetNumTriviaResult
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
 
 interface NumTriviaViewModel {
+    companion object {
+        fun create(repository: NumTriviaRepository) = NumTriviaViewModelImpl(repository)
+    }
     val input: LiveData<String>
     val clearInputText: LiveData<Unit>
     fun onClick(): LiveData<String>

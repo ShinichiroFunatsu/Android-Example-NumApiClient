@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
-import androidx.activity.viewModels
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.*
 import app.sfunatsu.numberapiclient.databinding.ActivityMainBinding
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
 import app.sfunatsu.numberapiclient.shared.ScopedAppActivity
+import app.sfunatsu.numberapiclient.ui.ktx.viewModels
 
 
 /**
@@ -19,14 +19,7 @@ class MainActivity : ScopedAppActivity() {
 
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private val repository: NumTriviaRepository by lazy { NumTriviaRepository() }
-    private val viewModel: NumTriviaViewModel by viewModels<NumTriviaViewModelImpl> {
-        object : ViewModelProvider.AndroidViewModelFactory(this.application) {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-                @Suppress("UNCHECKED_CAST")
-                return NumTriviaViewModelImpl(repository) as T
-            }
-        }
-    }
+    private val viewModel: NumTriviaViewModel by viewModels { NumTriviaViewModel.create(repository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

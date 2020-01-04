@@ -10,11 +10,13 @@ import app.sfunatsu.numberapiclient.databinding.ActivityMainBinding
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
 import app.sfunatsu.numberapiclient.shared.ScopedAppActivity
 import app.sfunatsu.numberapiclient.ui.ktx.viewModels
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
 /**
  * http://numbersapi.com/#42
  */
+@ExperimentalCoroutinesApi
 class MainActivity : ScopedAppActivity() {
 
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -29,12 +31,10 @@ class MainActivity : ScopedAppActivity() {
 
     private fun subscribeUi() {
         // observe click button and bind result to output
-        val buttonClickLister = {
-            viewModel.onClick().observe(this, Observer<String> {
-                binding.outputTextView.text = it
-            })
-        }
-        binding.fetchButton.clicks(buttonClickLister)
+        binding.fetchButton.clicks { viewModel.onClick() }
+        viewModel.output.observe(this, Observer {
+            binding.outputTextView.text = it
+        })
 
         // observe input
         val inputTextWatcher = binding.inputEditText.addTextChangedListener {

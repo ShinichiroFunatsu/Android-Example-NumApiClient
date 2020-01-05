@@ -37,10 +37,7 @@ class NumTriviaViewModelImpl(
         get() = { flow { emit(input.value?.toLongOrNull()) } }
 
     private val fetchNumOfTriviaFlow: suspend (Long) -> Flow<GetNumTriviaResult<Exception>>
-        get() = { num: Long ->
-            flow { emit(repository.fetchNumOfTrivia(num)) }
-                .onStart { output.value = "Loading.." }
-        }
+        get() = { num: Long -> flow { emit(repository.fetchNumOfTrivia(num)) } }
 
     override fun onClick() {
         viewModelScope.launch {

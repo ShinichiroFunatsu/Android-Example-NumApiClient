@@ -1,4 +1,4 @@
-package app.sfunatsu.numberapiclient.ui.ktx
+package app.sfunatsu.numberapiclient.ui.ktx.viewmodel
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.MainThread

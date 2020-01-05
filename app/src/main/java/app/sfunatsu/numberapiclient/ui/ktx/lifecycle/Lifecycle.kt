@@ -3,6 +3,7 @@ package app.sfunatsu.numberapiclient.ui.ktx.lifecycle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +23,9 @@ fun EditText.bindClear(liveData: LiveData<*>, textWatcher: TextWatcher? = null) 
             Observer { clearWithoutNotify(textWatcher) }
         }
     )
+}
+fun Button.bindEnable(liveData: LiveData<Boolean>) {
+    liveData.observe(this.context as AppCompatActivity, Observer { isEnabled = it })
 }
 
 fun View.clicks(f: () -> Unit) {

@@ -17,6 +17,7 @@ interface NumTriviaViewModel {
 
     val input: LiveData<String>
     val output: LiveData<String>
+    val buttonEnable: LiveData<Boolean>
     val clearInputText: LiveData<Unit>
     fun onClick(): Unit
     fun onInputTextChanged(text: CharSequence)
@@ -31,6 +32,7 @@ class NumTriviaViewModelImpl(
 
     override val input = MutableLiveData<String>()
     override val output = MutableLiveData<String>()
+    override val buttonEnable = MutableLiveData<Boolean>()
     override val clearInputText = MutableLiveData<Unit>()
 
     private val numFlow: () -> Flow<Long?>
@@ -44,9 +46,8 @@ class NumTriviaViewModelImpl(
             numFlow().filterNotNull()
                 .flatMapConcat { num ->
                     fetchNumOfTriviaFlow(num)
-                        .onStart { output.value = "Loading.." }
+                        .applyLoadingAction()
                 }
-                .onEach { it.onSuccess { resetStatus() } }
                 .collect { output.value = it.toResultMsg() }
         }
     }
@@ -54,6 +55,10 @@ class NumTriviaViewModelImpl(
     private fun resetStatus() {
         clearInputText.value = Unit
         input.value = ""
+    }
+
+    override fun onInputTextChanged(text: CharSequence) {
+        input.value = text.toString()
     }
 
     private fun GetNumTriviaResult<Exception>.toResultMsg() = when (this) {
@@ -65,7 +70,14 @@ class NumTriviaViewModelImpl(
         }
     }
 
-    override fun onInputTextChanged(text: CharSequence) {
-        input.value = text.toString()
-    }
+    private fun Flow<GetNumTriviaResult<Exception>>.applyLoadingAction(): Flow<GetNumTriviaResult<Exception>> =
+        this
+            .onStart {
+                buttonEnable.value = false
+                output.value = "Loading.."
+            }
+            .onEach {
+                buttonEnable.value = true
+                it.onSuccess { resetStatus() }
+            }
 }

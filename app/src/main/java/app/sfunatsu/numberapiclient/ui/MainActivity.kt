@@ -4,10 +4,7 @@ import android.os.Bundle
 import app.sfunatsu.numberapiclient.databinding.ActivityMainBinding
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
 import app.sfunatsu.numberapiclient.shared.ScopedAppActivity
-import app.sfunatsu.numberapiclient.ui.ktx.lifecycle.bindClear
-import app.sfunatsu.numberapiclient.ui.ktx.lifecycle.bindText
-import app.sfunatsu.numberapiclient.ui.ktx.lifecycle.clicks
-import app.sfunatsu.numberapiclient.ui.ktx.lifecycle.textChanges
+import app.sfunatsu.numberapiclient.ui.ktx.lifecycle.*
 import app.sfunatsu.numberapiclient.ui.ktx.viewmodel.viewModels
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
@@ -32,6 +29,7 @@ class MainActivity : ScopedAppActivity() {
 
     private fun subscribeUi() {
         binding.fetchButton.clicks { viewModel.onClick() }
+        binding.fetchButton.bindEnable(viewModel.buttonEnable)
         binding.outputTextView.bindText(viewModel.output)
         val textWatcher = binding.inputEditText.textChanges { viewModel.onInputTextChanged(it) }
         binding.inputEditText.bindClear(viewModel.clearInputText, textWatcher)

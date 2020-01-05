@@ -1,9 +1,9 @@
 package app.sfunatsu.numberapiclient.ui
 
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import app.sfunatsu.numberapiclient.databinding.ActivityMainBinding
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
-import app.sfunatsu.numberapiclient.shared.ScopedAppActivity
 import app.sfunatsu.numberapiclient.ui.ktx.lifecycle.*
 import app.sfunatsu.numberapiclient.ui.ktx.viewmodel.viewModels
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,7 +15,7 @@ import kotlinx.coroutines.FlowPreview
  */
 @FlowPreview
 @ExperimentalCoroutinesApi
-class MainActivity : ScopedAppActivity() {
+class MainActivity : AppCompatActivity() {
 
     private val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private val repository: NumTriviaRepository by lazy { NumTriviaRepository() }

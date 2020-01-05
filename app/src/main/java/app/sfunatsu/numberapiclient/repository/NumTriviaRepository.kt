@@ -15,6 +15,7 @@ class NumTriviaRepository(
 }
 
 sealed class GetNumTriviaResult<out T> {
+    object Empty: GetNumTriviaResult<Nothing>()
     data class Success(val trivia: NumTrivia) : GetNumTriviaResult<Nothing>()
     data class Error<out T>(val e: T) : GetNumTriviaResult<T>()
 

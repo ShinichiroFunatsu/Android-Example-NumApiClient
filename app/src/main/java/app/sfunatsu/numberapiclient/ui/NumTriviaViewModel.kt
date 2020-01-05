@@ -7,6 +7,13 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
+
+private sealed class Status {
+    data class Idling(val result: GetNumTriviaResult<Exception>) : Status()
+    object Loading : Status()
+}
 
 interface NumTriviaViewModel {
     companion object {
@@ -41,43 +48,54 @@ class NumTriviaViewModelImpl(
     private val fetchNumOfTriviaFlow: suspend (Long) -> Flow<GetNumTriviaResult<Exception>>
         get() = { num: Long -> flow { emit(repository.fetchNumOfTrivia(num)) } }
 
+    private var status: Status by Delegates.observable(Status.Idling(GetNumTriviaResult.Empty))
+    { _: KProperty<*>, _: Status, newValue: Status ->
+        updateStatus(newValue)
+    }
+
+    private fun updateStatus(status: Status) {
+        when (status) {
+            is Status.Idling -> {
+                val res = status.result
+                res.onSuccess {
+                    clearInputText.value = Unit
+                    input.value = ""
+                }
+                buttonEnable.value = true
+                output.value = res.toResultMsg()
+            }
+            is Status.Loading -> {
+                buttonEnable.value = false
+                output.value = "Loading..."
+            }
+        }
+    }
+
     override fun onClick() {
         viewModelScope.launch {
             numFlow().filterNotNull()
                 .flatMapConcat { num ->
                     fetchNumOfTriviaFlow(num)
-                        .applyLoadingAction()
+                        .onStart { status = Status.Loading }
+                        .onEach { status = Status.Idling(it) }
                 }
-                .collect { output.value = it.toResultMsg() }
+                .launchIn(this)
         }
-    }
-
-    private fun resetStatus() {
-        clearInputText.value = Unit
-        input.value = ""
     }
 
     override fun onInputTextChanged(text: CharSequence) {
         input.value = text.toString()
     }
 
-    private fun GetNumTriviaResult<Exception>.toResultMsg() = when (this) {
-        is GetNumTriviaResult.Success -> {
-            this.trivia.text
-        }
-        is GetNumTriviaResult.Error<Exception> -> {
-            this.e.message ?: "unknown error"
-        }
-    }
-
-    private fun Flow<GetNumTriviaResult<Exception>>.applyLoadingAction(): Flow<GetNumTriviaResult<Exception>> =
-        this
-            .onStart {
-                buttonEnable.value = false
-                output.value = "Loading.."
-            }
-            .onEach {
-                buttonEnable.value = true
-                it.onSuccess { resetStatus() }
-            }
 }
+
+private fun GetNumTriviaResult<Exception>.toResultMsg() = when (this) {
+    is GetNumTriviaResult.Success -> {
+        this.trivia.text
+    }
+    is GetNumTriviaResult.Error<Exception> -> {
+        this.e.message ?: "unknown error"
+    }
+    else -> throw IllegalStateException()
+}
+

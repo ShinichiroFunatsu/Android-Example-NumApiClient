@@ -36,9 +36,9 @@ class NumTriviaViewModelImpl(
     private val numFlow: () -> Flow<Long?>
         get() = { flow { emit(input.value?.toLongOrNull()) } }
 
-    private val findNumOfTriviaFlow: suspend (Long) -> Flow<GetNumTriviaResult<Exception>>
+    private val fetchNumOfTriviaFlow: suspend (Long) -> Flow<GetNumTriviaResult<Exception>>
         get() = { num: Long ->
-            flow { emit(repository.findNumOfTrivia(num)) }
+            flow { emit(repository.fetchNumOfTrivia(num)) }
                 .onStart { output.value = "Loading.." }
         }
 
@@ -46,7 +46,7 @@ class NumTriviaViewModelImpl(
         viewModelScope.launch {
             numFlow().filterNotNull()
                 .flatMapConcat { num ->
-                    findNumOfTriviaFlow(num)
+                    fetchNumOfTriviaFlow(num)
                         .onStart { output.value = "Loading.." }
                 }
                 .onEach { it.onSuccess { resetStatus() } }

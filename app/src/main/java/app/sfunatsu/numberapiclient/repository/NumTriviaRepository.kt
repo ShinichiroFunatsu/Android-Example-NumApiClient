@@ -9,8 +9,8 @@ import retrofit2.http.Path
 class NumTriviaRepository(
     private val remoteDataSource: NumTriviaRemoteDataSource = NumTriviaRemoteDataSource()
 ) {
-    suspend fun findNumOfTrivia(num: Long) = GetNumTriviaResult.runCatching {
-        remoteDataSource.triviaOf(num)
+    suspend fun fetchNumOfTrivia(num: Long) = GetNumTriviaResult.runCatching {
+        remoteDataSource.fetchTriviaOf(num)
     }
 }
 
@@ -37,7 +37,7 @@ class NumTriviaRemoteDataSource {
 
     private val service: NumApiService = retrofit.create(NumApiService::class.java)
 
-    suspend fun triviaOf(num: Long): NumTrivia = service.triviaOf(num = num)
+    suspend fun fetchTriviaOf(num: Long): NumTrivia = service.triviaOf(num = num)
 
 }
 

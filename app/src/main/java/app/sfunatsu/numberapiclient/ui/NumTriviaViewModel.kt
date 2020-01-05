@@ -51,6 +51,11 @@ class NumTriviaViewModelImpl(
         }
     }
 
+    private fun resetStatus() {
+        clearInputText.value = Unit
+        input.value = ""
+    }
+
     private fun GetNumTriviaResult<Exception>.toResultMsg() = when (this) {
         is GetNumTriviaResult.Success -> {
             this.trivia.text
@@ -62,10 +67,5 @@ class NumTriviaViewModelImpl(
 
     override fun onInputTextChanged(text: CharSequence) {
         input.value = text.toString()
-    }
-
-    private fun resetStatus() {
-        clearInputText.value = Unit
-        input.value = ""
     }
 }

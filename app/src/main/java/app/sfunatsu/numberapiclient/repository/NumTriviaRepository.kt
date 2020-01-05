@@ -17,6 +17,9 @@ class NumTriviaRepository(
 sealed class GetNumTriviaResult<out T> {
     data class Success(val trivia: NumTrivia) : GetNumTriviaResult<Nothing>()
     data class Error<out T>(val e: T) : GetNumTriviaResult<T>()
+
+    fun onSuccess(f: (NumTrivia) -> Unit) = apply { if (this is Success) f(trivia) }
+
     companion object {
         suspend fun runCatching(f: suspend () -> NumTrivia) = try {
             Success(f())

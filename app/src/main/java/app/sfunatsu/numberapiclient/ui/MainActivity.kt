@@ -11,11 +11,13 @@ import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
 import app.sfunatsu.numberapiclient.shared.ScopedAppActivity
 import app.sfunatsu.numberapiclient.ui.ktx.viewModels
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 
 
 /**
  * http://numbersapi.com/#42
  */
+@FlowPreview
 @ExperimentalCoroutinesApi
 class MainActivity : ScopedAppActivity() {
 

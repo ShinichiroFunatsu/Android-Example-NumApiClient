@@ -4,11 +4,13 @@ import androidx.lifecycle.*
 import app.sfunatsu.numberapiclient.repository.GetNumTriviaResult
 import app.sfunatsu.numberapiclient.repository.NumTriviaRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 interface NumTriviaViewModel {
     companion object {
+        @FlowPreview
         @ExperimentalCoroutinesApi
         fun create(repository: NumTriviaRepository) = NumTriviaViewModelImpl(repository)
     }
@@ -20,6 +22,7 @@ interface NumTriviaViewModel {
     fun onInputTextChanged(text: CharSequence)
 }
 
+@FlowPreview
 @ExperimentalCoroutinesApi
 class NumTriviaViewModelImpl(
     private val repository: NumTriviaRepository
@@ -30,15 +33,24 @@ class NumTriviaViewModelImpl(
     override val output = MutableLiveData<String>()
     override val clearInputText = MutableLiveData<Unit>()
 
-    private val numTriviaFlow: Flow<GetNumTriviaResult<Exception>>
-        get() = flowOf(input.value?.toLongOrNull()).filterNotNull()
-            .map { repository.findNumOfTrivia(it) }
-            .onStart { output.value = "Loading.." }
-            .onEach { if (it is GetNumTriviaResult.Success) clearInputText.value = Unit }
+    private val numFlow: () -> Flow<Long?>
+        get() = { flow { emit(input.value?.toLongOrNull()) } }
+
+    private val findNumOfTriviaFlow: suspend (Long) -> Flow<GetNumTriviaResult<Exception>>
+        get() = { num: Long ->
+            flow { emit(repository.findNumOfTrivia(num)) }
+                .onStart { output.value = "Loading.." }
+        }
 
     override fun onClick() {
         viewModelScope.launch {
-            numTriviaFlow.collect { output.value = it.toResultMsg() }
+            numFlow().filterNotNull()
+                .flatMapConcat { num ->
+                    findNumOfTriviaFlow(num)
+                        .onStart { output.value = "Loading.." }
+                }
+                .onEach { it.onSuccess { resetStatus() } }
+                .collect { output.value = it.toResultMsg() }
         }
     }
 
@@ -47,11 +59,16 @@ class NumTriviaViewModelImpl(
             this.trivia.text
         }
         is GetNumTriviaResult.Error<Exception> -> {
-            this.e.message ?: "error"
+            this.e.message ?: "unknown error"
         }
     }
 
     override fun onInputTextChanged(text: CharSequence) {
         input.value = text.toString()
+    }
+
+    private fun resetStatus() {
+        clearInputText.value = Unit
+        input.value = ""
     }
 }
